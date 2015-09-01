@@ -79,7 +79,6 @@ ADD ./patches/usr/ /usr/
 
 # Enable appropriate services
 RUN systemctl enable oc-fetch-ssh-keys.service \
- && systemctl enable oc-add-extra-volumes.service \
  && systemctl enable oc-sync-kernel-modules.service \
  && systemctl enable oc-gen-machine-id.service
  
