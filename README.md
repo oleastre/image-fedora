@@ -1,5 +1,7 @@
-Fedora image on Scaleway [![Build Status](https://travis-ci.org/scaleway/image-fedora.svg?branch=master)](https://travis-ci.org/scaleway/image-fedora)
-====================================
+# Fedora image on Scaleway
+
+[![Build Status](https://travis-ci.org/scaleway/image-fedora.svg?branch=master)](https://travis-ci.org/scaleway/image-fedora)
+[![](https://badge.imagelayers.io/scaleway/fedora:latest.svg)](https://imagelayers.io/?images=scaleway/fedora:latest 'Get your own badge on imagelayers.io')
 
 Scripts to build the official Fedora image on Scaleway
 
@@ -17,8 +19,7 @@ We use the Docker's building system and convert it at the end to a disk image th
 
 ---
 
-Install
--------
+## Install
 
 Build and write the image to /dev/nbd1 (see [documentation](https://www.scaleway.com/docs/create_an_image_with_docker))
 
@@ -28,15 +29,13 @@ Full list of commands available at: [scaleway/image-tools](https://github.com/sc
 
 ---
 
-Community discussions
----------------------
+## Community discussions
 
 - [Official: Fedora image](https://community.cloud.online.net/t/official-fedora-image/545)
 - [Please support CentOS (or at least Fedora)](https://community.cloud.online.net/t/need-feedback-please-support-centos-or-at-least-fedora/196)
 - [New linux distributions (Debian, CoreOS, CentOS, Fedora, Arch Linux, ...)](https://community.cloud.online.net/t/official-new-linux-distributions-debian-coreos-centos-fedora-arch-linux/229)
 
-Links
------
+## Links
 
 - [Fedora project](https://fedoraproject.org)
 - [ARM support on Fedora wiki](https://fedoraproject.org/wiki/Architectures/ARM)
