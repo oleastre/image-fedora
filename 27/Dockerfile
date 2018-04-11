@@ -1,5 +1,4 @@
-## -*- docker-image-name: "scaleway/fedora:latest" -*-
-ARG MULTIARCH_ARCH
+## -*- docker-image-name: "scaleway/fedora:27" -*-
 FROM library/fedora:27
 
 # Environment
