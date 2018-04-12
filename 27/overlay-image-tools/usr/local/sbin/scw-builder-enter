@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # This script will prepare the rootfs for the docker-based image-builder
 # toolsuite
