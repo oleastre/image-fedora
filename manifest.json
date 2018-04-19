@@ -1,0 +1,11 @@
+{
+  "images": {
+    "fedora27": {
+      "directory": "27",
+      "architectures": [
+        "x86_64"
+      ],
+      "marketplace-id": "4bff4f37-3ef9-457e-9e8d-4a786cb2a5f2"
+    }
+  }
+}
