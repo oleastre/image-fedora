@@ -1,0 +1,8 @@
+GRUB_TIMEOUT=3
+GRUB_DISTRIBUTOR="$(sed 's, release .*$,,g' /etc/system-release)"
+GRUB_DEFAULT=saved
+GRUB_DISABLE_SUBMENU=true
+GRUB_TERMINAL="serial"
+GRUB_SERIAL_COMMAND="serial --speed=9600 --unit=0 --word=8 --parity=no --stop=1"
+GRUB_CMDLINE_LINUX="console=tty0 console=ttyS0,9600 rd.debug rd.shell"
+GRUB_DISABLE_RECOVERY="true"
