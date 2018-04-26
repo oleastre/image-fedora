@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 NETCONFIG_PATH=/etc/sysconfig/network-scripts
 
@@ -17,11 +17,7 @@ UUID=\"$(uuidgen)\"
 DEVICE=\"$iface\"
 ONBOOT=\"yes\"
 PERSISTENT_DHCLIENT=\"1\"
-# Uncomment to enable IPv6
-#IPV6INIT=\"yes\"
-#IPV6_AUTOCONF=\"yes\"
-#IPV6_DEFROUTE=\"yes\"
-#IPV6_FAILURE_FATAL=\"no\"
+NM_CONTROLLED=\"no\"
 " > ${NETCONFIG_PATH}/ifcfg-${iface}
     fi
 

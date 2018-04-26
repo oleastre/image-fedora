@@ -40,6 +40,7 @@ RUN systemctl enable \
 	scw-sync-kernel-modules \
 	scw-signal-booted \
 	scw-generate-net-config \
+	scw-net-ipv6 \
 	scw-generate-root-passwd \
 	scw-set-hostname
 
