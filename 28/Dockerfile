@@ -38,8 +38,10 @@ RUN systemctl enable \
 	scw-kernel-check \
 	scw-sync-kernel-modules \
 	scw-signal-booted \
+	scw-generate-net-config \
 	scw-net-ipv6 \
 	scw-generate-root-passwd \
+	scw-enable-selinux \
 	scw-set-hostname
 
 
@@ -53,6 +55,9 @@ RUN systemctl mask sshd-keygen.service
 # Unfortunately F28 does not boot within 120 seconds with the SELinux relabel
 # set SELinux to permissive so users can run the relabel manually after first boot
 RUN sed -i 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+
+# Enable SCW motd
+RUN echo "session optional pam_motd.so" >> /etc/pam.d/login && echo "/etc/update-motd.d/50-scw" >> /etc/profile
 
 # This Centos service is not compatible with Scaleway kernel
 # kdumpctl[1213]: Kdump is not supported on this kernel
