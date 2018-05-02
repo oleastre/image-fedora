@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+if [ ! -f /etc/selinux/config ]; then
+	echo "/etc/selinux/config not found!"
+	exit 1
+fi
+
+if [ $(grep -c "SELINUX=permissive" /etc/selinux/config) -eq 1 ]; then
+	echo "Creating /.autorelabel"
+	touch /.autorelabel
+	echo "Setting SELinux mode to 'enforcing'"
+	sed -i 's/SELINUX=permissive/SELINUX=enforcing/' /etc/selinux/config
+elif [ $(grep -c "SELINUX=disabled" /etc/selinux/config) -eq 1 ]; then
+	echo "Creating /.autorelabel"
+	touch /.autorelabel
+	echo "Enabling SELinux, and setting mode to 'enforcing'"
+	sed -i 's/SELINUX=disabled/SELINUX=enforcing/' /etc/selinux/config
+elif [ $(grep -c "SELINUX=enforcing" /etc/selinux/config) -eq 1 ]; then
+	echo "SELinux is already enforcing"
+fi
+
+echo "Please reboot for changes to take effect!"
+
+# disable systemd service
+if [ $(systemctl list-unit-files | grep scw-enable-selinux | grep -c 'disabled') -eq 1 ]; then
+	systemctl mask scw-enable-selinux
+fi
