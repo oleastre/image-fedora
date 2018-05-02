@@ -5,6 +5,21 @@ if [ ! -f /etc/selinux/config ]; then
 	exit 1
 fi
 
+# check the kernel version string for common Red Hat version strings
+# if the user is running a custom kernel, we may be in a bootscript
+# or a customer kernel may not have SELinux support
+if [ $(uname -r | egrep -c "fc27|fc28|el7") -ne 1 ]; then
+	if [ ! -f /proc/config.gz ]; then
+		echo "Not a distribution kernel and no /proc/config.gz"
+		exit 1
+	else; then
+		if [ $(zcat /proc/config.gz | grep -c "CONFIG_SECURITY_SELINUX=y") -ne 1 ]; then
+			echo "SELinux is not enabled in your kernel $(uname -r)"
+			exit 1
+		fi
+	fi
+fi
+
 if [ $(grep -c "SELINUX=permissive" /etc/selinux/config) -eq 1 ]; then
 	echo "Creating /.autorelabel"
 	touch /.autorelabel
@@ -13,15 +28,18 @@ if [ $(grep -c "SELINUX=permissive" /etc/selinux/config) -eq 1 ]; then
 elif [ $(grep -c "SELINUX=disabled" /etc/selinux/config) -eq 1 ]; then
 	echo "Creating /.autorelabel"
 	touch /.autorelabel
-	echo "Enabling SELinux, and setting mode to 'enforcing'"
-	sed -i 's/SELINUX=disabled/SELINUX=enforcing/' /etc/selinux/config
+	echo "Enabling SELinux, and setting mode to 'permissive'"
+	sed -i 's/SELINUX=disabled/SELINUX=permissive/' /etc/selinux/config
 elif [ $(grep -c "SELINUX=enforcing" /etc/selinux/config) -eq 1 ]; then
 	echo "SELinux is already enforcing"
 fi
 
 echo "Please reboot for changes to take effect!"
 
-# disable systemd service
-if [ $(systemctl list-unit-files | grep scw-enable-selinux | grep -c 'disabled') -eq 1 ]; then
-	systemctl mask scw-enable-selinux
+# only disable this systemd service if SELinux is enabled
+if [ "$(sestatus | grep \"SELinux status\" | awk '{print $3}' == "enabled" ]; then
+	# only mask/disable if the service is currently enabled
+	if [ $(systemctl list-unit-files | grep scw-enable-selinux | grep -c 'enabled') -eq 1 ]; then
+		systemctl mask scw-enable-selinux
+	fi
 fi
