@@ -12,7 +12,7 @@ if [ $(uname -r | egrep -c "fc27|fc28|el7") -ne 1 ]; then
 	if [ ! -f /proc/config.gz ]; then
 		echo "Not a distribution kernel and no /proc/config.gz"
 		exit 1
-	else; then
+	else
 		if [ $(zcat /proc/config.gz | grep -c "CONFIG_SECURITY_SELINUX=y") -ne 1 ]; then
 			echo "SELinux is not enabled in your kernel $(uname -r)"
 			exit 1
@@ -37,9 +37,9 @@ fi
 echo "Please reboot for changes to take effect!"
 
 # only disable this systemd service if SELinux is enabled
-if [ "$(sestatus | grep \"SELinux status\" | awk '{print $3}' == "enabled" ]; then
+if [ "$(sestatus | grep 'SELinux status' | awk '{print $3}')" == "enabled" ]; then
 	# only mask/disable if the service is currently enabled
 	if [ $(systemctl list-unit-files | grep scw-enable-selinux | grep -c 'enabled') -eq 1 ]; then
-		systemctl mask scw-enable-selinux
+		systemctl disable scw-enable-selinux
 	fi
 fi
