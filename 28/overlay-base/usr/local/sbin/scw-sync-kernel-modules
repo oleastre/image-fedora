@@ -1,0 +1,29 @@
+#!/bin/bash
+# description "synchronizes kernel module"
+# author "Scaleway <opensource@scaleway.com>"
+
+set -e -o pipefail
+
+DIR=/lib/modules
+mkdir -p $DIR
+TMP_DIR=`mktemp -d -p $DIR`
+KVERSION=`uname -r`
+KARCH=`uname -m`
+TIMEOUT=10
+
+export PATH="${PATH:+$PATH:}/usr/bin:/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin"
+
+clean() {
+    rm -rf "$TMP_DIR" 2>/dev/null
+}
+trap 'clean' INT TERM EXIT
+
+if [ ! -d $DIR/${KVERSION} ]; then
+  curl -fsSL http://mirror.scaleway.com/kernel/${KARCH}/${KVERSION}/modules.tar | tar -C $TMP_DIR -x --strip-component 1
+  if [ $? -eq 0 ]; then
+    mkdir -p $DIR/${KVERSION}
+    mv $TMP_DIR/${KVERSION} $DIR
+  fi
+fi
+
+depmod -a

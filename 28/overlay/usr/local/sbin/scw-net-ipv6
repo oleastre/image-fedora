@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Copyright (c) 2018 Online SAS
+
+IPV6_ADDR=$(scw-metadata --cached IPV6_ADDRESS)
+IPV6_NMASK=$(scw-metadata --cached IPV6_NETMASK)
+IPV6_GW=$(scw-metadata --cached IPV6_GATEWAY)
+NETCONFIG_PATH=/etc/sysconfig/network-scripts
+
+# only apply IPv6 configuration if it is enabled for the VM
+# or if we could retrieve the data from scw-metadata
+
+if [ ! -z "$IPV6_ADDR" ] && [ ! -z "$IPV6_NMASK" ] && [ ! -z "IPV6_GW" ]; then
+	# ensure IPv6 is not disabled
+	sysctl -q net.ipv6.conf.all.disable_ipv6=0
+	sysctl -q net.ipv6.conf.default.disable_ipv6=0
+
+	# ensure /etc/sysconfig/network exists
+	touch /etc/sysconfig/network
+
+	# ensure IPv6 is enabled in /etc/sysconfig/network
+	if [ $(grep -c "NETWORKING_IPV6=no" /etc/sysconfig/network) -eq 1 ]; then
+		sed -i 's/NETWORKING_IPV6=no/NETWORKING_IPV6=yes/' /etc/sysconfig/network
+	elif [ $(grep -c "NETWORKING_IPV6=yes" /etc/sysconfig/network) -eq 0 ]; then
+		echo "NETWORKING_IPV6=yes" >> /etc/sysconfig/network
+	fi
+	if [ $(grep -c "IPV6_AUTOCONF=yes" /etc/sysconfig/network) -eq 1 ]; then
+		sed -i 's/IPV6_AUTOCONF=yes/IPV6_AUTOCONF=no/' /etc/sysconfig/network
+	elif [ $(grep -c "IPV6_AUTOCONF=no" /etc/sysconfig/network) -eq 0 ]; then
+		echo "IPV6_AUTOCONF=no" >> /etc/sysconfig/network
+	fi
+
+	# configure each interface
+        for iface in $(ls /sys/class/net); do
+                # Only configure physical interfaces
+                # FIXME: the below will break the IPv6 default route
+                # if the instance has more than one physical interface !!
+                if readlink /sys/class/net/$iface | grep -s -v 'virtual' > /dev/null 2>&1; then
+			# ensure IPv6 is not disabled for this interface
+			sysctl -q net.ipv6.conf.$iface.disable_ipv6=0
+			# configure the address on the interface
+                        ip addr add ${IPV6_ADDR}/${IPV6_NMASK} dev $iface > /dev/null 2>&1
+                        ip -6 r add default via ${IPV6_GW} dev $iface > /dev/null 2>&1
+
+			# ensure interface configuration file exists
+			touch ${NETCONFIG_PATH}/ifcfg-$iface
+			# add ipv6 configuration to interface file
+			if [ $(grep -c "IPv6 configuration for $iface" ${NETCONFIG_PATH}/ifcfg-$iface) -eq 0 ]; then
+				cat <<EOF>>${NETCONFIG_PATH}/ifcfg-$iface
+# IPv6 configuration for $iface
+IPV6INIT="yes"
+IPV6ADDR=$IPV6_ADDR/$IPV6_NMASK
+IPV6_DEFAULTGW=$IPV6_GW
+IPV6_AUTOCONF="no"
+IPV6_DEFROUTE="yes"
+IPV6_FAILURE_FATAL="no"
+EOF
+			fi
+                fi
+        done
+fi
+
