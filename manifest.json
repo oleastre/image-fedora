@@ -13,6 +13,16 @@
         "x86_64"
       ],
       "marketplace-id": "30d0f04f-6422-4b74-9ce9-1c2267419978"
+    },
+    "fedora28-25g": {
+      "directory": "28",
+      "architectures": [
+        "x86_64"
+      ],
+      "options": {
+        "disk-size": "25G"
+      },
+      "marketplace-id": "e8a54d8e-2150-41f4-8203-daf91ae8156e"
     }
   }
 }
