@@ -1,20 +1,20 @@
 {
   "images": {
-    "fedora27": {
+    "27": {
       "directory": "27",
       "architectures": [
         "x86_64"
       ],
       "marketplace-id": "4bff4f37-3ef9-457e-9e8d-4a786cb2a5f2"
     },
-    "fedora28": {
+    "28": {
       "directory": "28",
       "architectures": [
         "x86_64"
       ],
       "marketplace-id": "30d0f04f-6422-4b74-9ce9-1c2267419978"
     },
-    "fedora28-25g": {
+    "28-25g": {
       "directory": "28",
       "architectures": [
         "x86_64"
