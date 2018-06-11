@@ -23,7 +23,8 @@ RUN dnf group install -y "Minimal Install" \
 	esac \
 	&& dnf install -y grub2-efi-"${GRUB_ARCH}" \
 	grub2-efi-"${GRUB_ARCH}"-modules \
-	grub2
+	grub2 \
+	&& dnf config-manager --set-disabled updates-testing
 
 
 # Patch rootfs
