@@ -27,6 +27,8 @@ RUN dnf group install -y "Minimal Install" \
 	grub2 \
 	grub2-pc
 
+# Enable cloud-init
+RUN dnf install -y https://github.com/scaleway/image-tools/releases/download/cloud-init/cloud-init-18.2.5.g01ff5c2e.scaleway-1.fc28.noarch.rpm
 
 # Patch rootfs
 COPY ./overlay-image-tools ./overlay-base ./overlay /
@@ -43,6 +45,13 @@ RUN systemctl enable \
 	scw-net-ipv6 \
 	scw-generate-root-passwd \
 	scw-set-hostname
+
+# Disable systemd units that are handled by cloud-init
+RUN cd /etc/systemd/system && for I in $(ls scw* | grep -v root);do systemctl disable $I;done
+
+# Enable root login to stay backward-compatible
+# Otherwise cloud-init disables it
+RUN sed -i 's/disable_root: true/disable_root: false/' /etc/cloud/cloud.cfg
 
 # Enable getty for serial console
 RUN ln -sf /usr/lib/systemd/system/console-getty.service /etc/systemd/system/multi-user.target.wants/ && \
