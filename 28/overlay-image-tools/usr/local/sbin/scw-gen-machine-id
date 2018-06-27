@@ -4,6 +4,6 @@
 
 if [ -f /etc/.regen-machine-id ]
 then
-	uuidgen > /etc/machine-id
+	dbus-uuidgen > /etc/machine-id
 	rm -f /etc/.regen-machine-id
 fi
