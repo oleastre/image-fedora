@@ -50,6 +50,10 @@ RUN systemctl enable \
 RUN ln -sf /usr/lib/systemd/system/console-getty.service /etc/systemd/system/multi-user.target.wants/ && \
 	rm /etc/systemd/system/console-getty.service
 
+# Configure Systemd
+RUN systemctl set-default multi-user
+RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/*scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
+
 # Avoid duplicate the same action (with scw-generate-ssh-keys)
 RUN systemctl mask sshd-keygen.service
 

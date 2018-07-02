@@ -46,8 +46,9 @@ RUN systemctl enable \
 	scw-generate-root-passwd \
 	scw-set-hostname
 
-# Disable systemd units that are handled by cloud-init
-RUN cd /etc/systemd/system && for I in $(ls scw* | grep -v root);do systemctl disable $I;done
+# Configure Systemd
+RUN systemctl set-default multi-user
+RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/*scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
 
 # Enable root login to stay backward-compatible
 # Otherwise cloud-init disables it
