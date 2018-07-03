@@ -5,7 +5,7 @@ FROM library/fedora:27
 ENV SCW_BASE_IMAGE scaleway/fedora:latest
 
 # Adding and calling builder-enter
-COPY ./overlay-image-tools/usr/local/sbin/scw-builder-enter /usr/local/sbin/
+COPY ./overlay-base/usr/local/sbin/scw-builder-enter /usr/local/sbin/
 COPY ./overlay/etc/default/grub /etc/default/
 
 RUN dnf group install -y "Minimal Install" \
@@ -31,20 +31,7 @@ RUN dnf group install -y "Minimal Install" \
 RUN dnf install -y https://github.com/scaleway/image-tools/releases/download/cloud-init/cloud-init-18.2.5.g01ff5c2e.scaleway-1.fc28.noarch.rpm
 
 # Patch rootfs
-COPY ./overlay-image-tools ./overlay-base ./overlay /
-
-# Enable Scaleway services
-RUN systemctl enable \
-	scw-generate-ssh-keys \
-	scw-fetch-ssh-keys \
-	scw-gen-machine-id \
-	scw-kernel-check \
-	scw-sync-kernel-modules \
-	scw-signal-booted \
-	scw-generate-net-config \
-	scw-net-ipv6 \
-	scw-generate-root-passwd \
-	scw-set-hostname
+COPY ./overlay-base ./overlay /
 
 # Configure Systemd
 RUN systemctl set-default multi-user
