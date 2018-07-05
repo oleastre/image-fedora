@@ -5,7 +5,7 @@ FROM library/fedora:28
 ENV SCW_BASE_IMAGE scaleway/fedora:latest
 
 # Adding and calling builder-enter
-COPY ./overlay-image-tools/usr/local/sbin/scw-builder-enter /usr/local/sbin/
+COPY ./overlay-base/usr/local/sbin/scw-builder-enter /usr/local/sbin/
 COPY ./overlay/etc/default/grub /etc/default/
 
 RUN dnf group install -y "Minimal Install" \
@@ -28,7 +28,7 @@ RUN dnf group install -y "Minimal Install" \
 
 
 # Patch rootfs
-COPY ./overlay-image-tools ./overlay-base ./overlay /
+COPY ./overlay-base ./overlay /
 
 # Enable Scaleway services
 RUN systemctl enable \
