@@ -37,10 +37,6 @@ COPY ./overlay-base ./overlay /
 RUN systemctl set-default multi-user
 RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/*scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
 
-# Enable root login to stay backward-compatible
-# Otherwise cloud-init disables it
-RUN sed -i 's/disable_root: true/disable_root: false/' /etc/cloud/cloud.cfg
-
 # Enable getty for serial console
 RUN ln -sf /usr/lib/systemd/system/console-getty.service /etc/systemd/system/multi-user.target.wants/ && \
 	rm /etc/systemd/system/console-getty.service
