@@ -28,7 +28,7 @@ RUN dnf group install -y "Minimal Install" \
 	grub2-pc
 
 # Enable cloud-init
-RUN dnf install -y https://github.com/scaleway/image-tools/releases/download/cloud-init/cloud-init-18.2.5.g01ff5c2e.scaleway-1.fc28.noarch.rpm
+RUN dnf install -y https://github.com/scaleway/image-tools/releases/download/cloud-init-18.3%2B9.g2e62cb8a/cloud-init-18.3+9.g2e62cb8a.scaleway-1.fc28.noarch.rpm
 
 # Patch rootfs
 COPY ./overlay-base ./overlay /
