@@ -28,7 +28,7 @@ RUN dnf group install -y "Minimal Install" \
 	grub2-pc
 
 # Enable cloud-init
-RUN dnf install -y https://github.com/scaleway/image-tools/releases/download/cloud-init/cloud-init-18.2.5.g01ff5c2e.scaleway-1.fc28.noarch.rpm
+RUN dnf install -y https://github.com/scaleway/image-tools/releases/download/cloud-init-18.3%2B9.g2e62cb8a/cloud-init-18.3+9.g2e62cb8a.scaleway-1.fc28.noarch.rpm
 
 # Patch rootfs
 COPY ./overlay-base ./overlay /
@@ -36,10 +36,6 @@ COPY ./overlay-base ./overlay /
 # Configure Systemd
 RUN systemctl set-default multi-user
 RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/*scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
-
-# Enable root login to stay backward-compatible
-# Otherwise cloud-init disables it
-RUN sed -i 's/disable_root: true/disable_root: false/' /etc/cloud/cloud.cfg
 
 # Enable getty for serial console
 RUN ln -sf /usr/lib/systemd/system/console-getty.service /etc/systemd/system/multi-user.target.wants/ && \
