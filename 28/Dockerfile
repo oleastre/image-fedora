@@ -26,33 +26,16 @@ RUN dnf group install -y "Minimal Install" \
 	grub2 \
 	&& dnf config-manager --set-disabled updates-testing
 
-
 # Patch rootfs
 COPY ./overlay-base ./overlay /
-
-# Enable Scaleway services
-RUN systemctl enable \
-	NetworkManager \
-	scw-generate-ssh-keys \
-	scw-fetch-ssh-keys \
-	scw-gen-machine-id \
-	scw-kernel-check \
-	scw-sync-kernel-modules \
-	scw-signal-booted \
-	scw-generate-net-config \
-	scw-net-ipv6 \
-	scw-generate-root-passwd \
-	scw-enable-selinux \
-	scw-set-hostname
-
-
-# Enable getty for serial console
-RUN ln -sf /usr/lib/systemd/system/console-getty.service /etc/systemd/system/multi-user.target.wants/ && \
-	rm /etc/systemd/system/console-getty.service
 
 # Configure Systemd
 RUN systemctl set-default multi-user
 RUN systemctl preset --preset-mode=full $(cat /etc/systemd/system-preset/*scw*.preset | cut -d' ' -f2 | tr '\n' ' ')
+
+# Enable getty for serial console
+RUN ln -sf /usr/lib/systemd/system/console-getty.service /etc/systemd/system/multi-user.target.wants/ && \
+	rm /etc/systemd/system/console-getty.service
 
 # Avoid duplicate the same action (with scw-generate-ssh-keys)
 RUN systemctl mask sshd-keygen.service
