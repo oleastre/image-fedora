@@ -14,6 +14,13 @@
       ],
       "marketplace-id": "30d0f04f-6422-4b74-9ce9-1c2267419978"
     },
+    "29": {
+      "directory": "29",
+      "architectures": [
+        "x86_64"
+      ],
+      "marketplace-id": ""
+    },
     "28-25g": {
       "directory": "28",
       "architectures": [
