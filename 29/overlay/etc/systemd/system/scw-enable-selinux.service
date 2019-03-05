@@ -1,0 +1,10 @@
+[Unit]
+Description=Configure SELinux policy
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/scw-enable-selinux
+TimeoutSec=10
+
+[Install]
+WantedBy=multi-user.target
