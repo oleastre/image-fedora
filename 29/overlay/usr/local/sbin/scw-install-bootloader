@@ -7,39 +7,32 @@ arch_name=$(uname -m)
 case "$arch_name" in
     "aarch64")
         arch_name="arm64"
-	if [ $(grep -c GRUB_SERIAL_COMMAND /etc/default/grub) -eq 0 ]; then
-		echo 'GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"' >> /etc/default/grub
-	fi
-	if [ $(grep -c GRUB_CMDLINE_LINUX /etc/default/grub) -ne 0 ]; then
-		sed -i '/GRUB_CMDLINE_LINUX/d' /etc/default/grub
-	fi
-	echo 'GRUB_CMDLINE_LINUX="console=tty0 console=ttyAMA0,115200 rd.debug rd.shell"' >> /etc/default/grub
-	sed -i 's/9600/115200/' /etc/default/grub
+    if [ $(grep -c GRUB_SERIAL_COMMAND /etc/default/grub) -eq 0 ]; then
+        echo 'GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"' >> /etc/default/grub
+    fi
+    if [ $(grep -c GRUB_CMDLINE_LINUX /etc/default/grub) -ne 0 ]; then
+        sed -i '/GRUB_CMDLINE_LINUX/d' /etc/default/grub
+    fi
+    echo 'GRUB_CMDLINE_LINUX="console=tty0 console=ttyAMA0,115200 rd.debug rd.shell"' >> /etc/default/grub
+    sed -i 's/9600/115200/' /etc/default/grub
         ;;
     "amd64")
         arch_name="x86_64"
-	if [ $(grep -c GRUB_SERIAL_COMMAND /etc/default/grub) -eq 0 ]; then
-		echo 'GRUB_SERIAL_COMMAND="serial --speed=9600 --unit=0 --word=8 --parity=no --stop=1"' >> /etc/default/grub
-	fi
-	if [ $(grep -c GRUB_CMDLINE_LINUX /etc/default/grub) -ne 0 ]; then
-		sed -i '/GRUB_CMDLINE_LINUX/d' /etc/default/grub
-	fi
-	echo 'GRUB_CMDLINE_LINUX="console=tty0 console=ttyS0,9600 rd.debug rd.shell"' >> /etc/default/grub
+    if [ $(grep -c GRUB_SERIAL_COMMAND /etc/default/grub) -eq 0 ]; then
+        echo 'GRUB_SERIAL_COMMAND="serial --speed=9600 --unit=0 --word=8 --parity=no --stop=1"' >> /etc/default/grub
+    fi
+    if [ $(grep -c GRUB_CMDLINE_LINUX /etc/default/grub) -ne 0 ]; then
+        sed -i '/GRUB_CMDLINE_LINUX/d' /etc/default/grub
+    fi
+    echo 'GRUB_CMDLINE_LINUX="console=tty0 console=ttyS0,9600 rd.debug rd.shell"' >> /etc/default/grub
         ;;
 esac
 
 if mountpoint -q /boot/efi; then
-	grub2-install --target=${arch_name}-efi --bootloader-id=grub \
+    grub2-install --target=${arch_name}-efi --bootloader-id=grub \
      --removable --recheck --efi-dir=/boot/efi
-	# undo Red Hat's sixteenbit patch since it breaks UEFI booting
-	sed -i -e 's/sixteenbit="16"/sixteenbit=""/' /etc/grub.d/10_linux
-	grub2-mkconfig -o /boot/grub2/grub.cfg
-	# in case 10_linux has been somehow over-written with a bad copy
-	# patch the grub.cfg configuration directly to ensure it's correct
-	sed -i 's/linux16/linuxefi/' /boot/grub2/grub.cfg
-	sed -i 's/initrd16/initrdefi/' /boot/grub2/grub.cfg
-	sed -i 's/\sro\s/ rw /' /boot/grub2/grub.cfg
+    grub2-mkconfig -o /boot/grub2/grub.cfg
 else
-	echo "ESP is not mounted to /boot/efi"
-	return 1
+    echo "ESP is not mounted to /boot/efi"
+    return 1
 fi
