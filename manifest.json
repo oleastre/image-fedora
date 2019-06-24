@@ -19,17 +19,7 @@
       "architectures": [
         "x86_64"
       ],
-      "marketplace-id": ""
-    },
-    "28-25g": {
-      "directory": "28",
-      "architectures": [
-        "x86_64"
-      ],
-      "options": {
-        "disk-size": "25G"
-      },
-      "marketplace-id": "e8a54d8e-2150-41f4-8203-daf91ae8156e"
+      "marketplace-id": "69adec15-f1a7-469a-9ba5-868577832521"
     }
   }
 }
