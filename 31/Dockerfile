@@ -18,6 +18,7 @@ RUN dnf group install -y "Minimal Install" \
 	openssh-server \
 	passwd \
 	sudo \
+	cracklib-dicts \
 	&& case $(arch) in \
 	x86_64) GRUB_ARCH="x64"; dnf install -y grub2-pc ;;\
 	aarch64) GRUB_ARCH="aa64" ;;\
