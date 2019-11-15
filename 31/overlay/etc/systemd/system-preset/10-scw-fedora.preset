@@ -3,4 +3,5 @@ disable scw-net-ipv6.service
 disable scw-generate-ssh-keys.service
 disable scw-sync-kernel-modules.service
 disable scw-signal-booted.service
+enable scw-grow-root.service
 enable scw-set-hostname.service

@@ -1,0 +1,10 @@
+[Unit]
+Description=Grow root filesystem
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/scw-grow-root
+TimeoutSec=10
+
+[Install]
+WantedBy=multi-user.target
