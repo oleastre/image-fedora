@@ -1,5 +1,6 @@
 [Unit]
 Description=Grow root filesystem
+After=systemd-udev-settle.service
 
 [Service]
 Type=oneshot
