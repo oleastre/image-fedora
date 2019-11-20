@@ -31,6 +31,7 @@ RUN dnf group install -y "Minimal Install" \
 # Enable cloud-init
 RUN dnf install -y https://copr-be.cloud.fedoraproject.org/results/oleastre/misc/fedora-31-x86_64/01093140-cloud-init/cloud-init-19.3-1.fc31.noarch.rpm
 RUN dnf install -y \
+	rng-tools \
 	cloud-utils \
 	cloud-utils-growpart
 
@@ -58,6 +59,9 @@ RUN echo "session optional pam_motd.so" >> /etc/pam.d/login && echo "/etc/update
 # This Centos service is not compatible with Scaleway kernel
 # kdumpctl[1213]: Kdump is not supported on this kernel
 RUN systemctl mask kdump.service
+
+# Addrngd at startup to get hardware generated random entropy
+RUN systemctl enable rngd
 
 # Clean rootfs from image-builder
 RUN /usr/local/sbin/scw-builder-leave
