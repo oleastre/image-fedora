@@ -1,0 +1,31 @@
+#cloud-config
+
+# Set the default user
+system_info:
+  default_user:
+    name: sysadmin
+
+groups:
+  - sysadmin: sysadmin
+  - wheel: sysadmin
+
+# Unlock the default user
+chpasswd:
+  list: |
+     sysadmin:$ys4dm!n
+  expire: False
+
+# Other settings
+growpart:
+    mode: auto
+    devices: ["/"]
+resize_rootfs: True
+ssh_pwauth: True
+timezone: Europe/Brussels
+
+# Add any ssh public keys
+ssh_authorized_keys:
+ - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCxyNHuELquP0UDlQWfTpVwJJXy8iLueqtMpm6vPPNUTr/c5EfyiB/0z0dMVKYX8I2g7gyu7dVo8H2kwYm5YONLxtR782RhU/voziem4cuX8D/GEMUx+YqWVnFKkOetmWSRScvhgUAdnTb8B4Qaw59CjhWnREq9Iagh9aZgS6NrdNG2TLoSfOGLtH9AT+cmh93zSwGEsQw8sQ25/D7GmQoMHdNlT/70ECegTBqBeSubeF+aldvtFH37a/7EUzlCeh+3xyfZu62uXykhBQTY1QIt5ByNAHhehDvYCtLHned3rjfp5GRNUqNqtbLimnSoNkQvb/cg06kll6tkYi6WhcLeHSZRuSmRMhXc7VhcR/SjVmSyiOG9mDO7BQzy+wzLl2WVL4G2V+ZOmdkOEkV9qPyizR3WQw40ro0I1naFhi0g8bcJLriZlpE65XIWdvHpS7Ub632a2YfH9L/FZGwK99CY//bdo5mFcuGClcf7a9SA/1+wVH2Y1mSWPsnG/1Gntx649zg8x2J3ko6M2NZqCfMnFCQZ7CGnAI8HRxGFdAh0RLVI8Fm/U+JEZGeibpY9+kijZEgk0V2gngOvXQ6p21o6djKqEsHMclCzPxVn34rWyWEJ+vEAHlkZ1zL9jkVblD97caHHft6HJHCQrlnQFgVj5+GB771YCtbW8+qhfekCLw== olivier@oleastre.be
+
+# For pexpect to know when to log in and begin tests
+final_message: "SYSTEM READY TO LOG IN"

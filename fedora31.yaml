@@ -1,0 +1,130 @@
+# Example command: ansible-playbook -u debian -i 51.15.66.89, fedora31.yaml
+---
+- hosts: all
+  remote_user: root
+  become: yes
+  vars:
+    fedora_image: https://download.fedoraproject.org/pub/fedora/linux/releases/31/Cloud/x86_64/images/Fedora-Cloud-Base-31-1.9.x86_64.raw.xz
+    target_disk: /dev/vdb
+  tasks:
+    - name: "Install used packages"
+      package:
+        name:
+          - parted
+          - dosfstools
+        state: present
+
+    - name: "Create builder paths"
+      file:
+        path: "{{item}}"
+        state: directory
+      loop:
+        - /root/image-build
+        - /mnt/image
+        - /mnt/target
+
+    - name: "Download Fedora"
+      get_url:
+        url: "{{fedora_image}}"
+        dest: /root/image-build/fedora.raw.xz
+        timeout: 120
+
+    - name: "Extract image"
+      command:
+        cmd: unxz -k /root/image-build/fedora.raw.xz
+        creates: /root/image-build/fedora.raw
+
+    - name: "Partition target disk - ESP"
+      parted:
+        device: "{{target_disk}}"
+        label: gpt
+        state: present
+        number: 1
+        name: "EFI System Partition"
+        part_end: "1GiB"
+        flags: [ esp ]
+
+    - name: "Partition target disk - Fedora"
+      parted:
+        device: "{{target_disk}}"
+        label: gpt
+        state: present
+        number: 2
+        name: "Fedora"
+        part_start: "1GiB"
+        part_end: "5GiB"
+
+    - name: "Format target disk - ESP"
+      filesystem:
+        dev: "{{target_disk}}1"
+        fstype: vfat
+
+    - name: "Format target disk - Fedora"
+      filesystem:
+        dev: "{{target_disk}}2"
+        fstype: ext4
+
+    - name: "Mount target disk"
+      mount:
+        src: "{{target_disk}}2"
+        path: /mnt/target
+        state: mounted
+        fstype: ext4
+        boot: no
+
+    - name: "Create target boot path"
+      file:
+        path: /mnt/target/boot/efi
+        state: directory
+
+    - name: "Mount target ESP"
+      mount:
+        src: "{{target_disk}}1"
+        path: /mnt/target/boot/efi
+        state: mounted
+        fstype: vfat
+        boot: no
+
+    - name: "Copy image content to target"
+      block:
+      - name: "Setup loop filesystem"
+        command:
+          cmd: "losetup -f -P --show /root/image-build/fedora.raw"
+        register: image_loop_dev
+
+      - name: "Mount loop filesystem"
+        command: mount "{{image_loop_dev.stdout}}p1" /mnt/image
+
+      - name: "Copy image content"
+        command:
+          cmd: rsync -aAX --exclude=/boot/efi /mnt/image/ /mnt/target/
+
+      - name: "Copy boot partition content"
+        command:
+          cmd: rsync -a /mnt/image/boot/efi/ /mnt/target/boot/efi/
+
+      - name: "Copy current host ESP partition content"
+        command:
+          cmd: rsync -a /boot/efi/ /mnt/target/boot/efi/
+
+      - name: "Cleanup: umount loop filesystem"
+        command: umount /mnt/image
+
+      - name: "Cleanup: unset loop filesystem"
+        command:
+          cmd: "losetup -d {{image_loop_dev.stdout}}"
+
+    - name: "Customize setup"
+      copy:
+        src: configs/
+        dest: /mnt/target/
+
+    # - name: "Cleanup: umount target ESP"
+    #   mount:
+    #     path: /mnt/target/boot/efi
+    #     state: unmounted
+
+    # - name: "Cleanup: umount target"
+    #   mount:
+    #     path: /mnt/target
+    #     state: unmounted
