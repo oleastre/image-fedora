@@ -4,7 +4,7 @@
   remote_user: root
   become: yes
   vars:
-    fedora_image: https://download.fedoraproject.org/pub/fedora/linux/releases/31/Cloud/x86_64/images/Fedora-Cloud-Base-31-1.9.x86_64.raw.xz
+    fedora_image: http://ftp.nluug.nl/pub/os/Linux/distr/fedora/linux/releases/31/Cloud/x86_64/images/Fedora-Cloud-Base-31-1.9.x86_64.raw.xz
     target_disk: /dev/vdb
   tasks:
     - name: "Install used packages"
