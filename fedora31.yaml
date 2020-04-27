@@ -42,7 +42,7 @@
         number: 1
         name: "EFI System Partition"
         part_end: "1GiB"
-        flags: [ esp ]
+        flags: [esp]
 
     - name: "Partition target disk - Fedora"
       parted:
@@ -87,43 +87,79 @@
 
     - name: "Copy image content to target"
       block:
-      - name: "Setup loop filesystem"
-        command:
-          cmd: "losetup -f -P --show /root/image-build/fedora.raw"
-        register: image_loop_dev
+        - name: "Setup loop filesystem"
+          command:
+            cmd: "losetup -f -P --show /root/image-build/fedora.raw"
+          register: image_loop_dev
 
-      - name: "Mount loop filesystem"
-        command: mount "{{image_loop_dev.stdout}}p1" /mnt/image
+        - name: "Mount loop filesystem"
+          command: mount "{{image_loop_dev.stdout}}p1" /mnt/image
 
-      - name: "Copy image content"
-        command:
-          cmd: rsync -aAX --exclude=/boot/efi /mnt/image/ /mnt/target/
+        - name: "Copy image content"
+          command:
+            cmd: rsync -aAX --exclude=/boot/efi /mnt/image/ /mnt/target/
 
-      - name: "Copy boot partition content"
-        command:
-          cmd: rsync -a /mnt/image/boot/efi/ /mnt/target/boot/efi/
+        - name: "Copy current host ESP partition content"
+          command:
+            cmd: rsync -a /boot/efi/ /mnt/target/boot/efi/
 
-      - name: "Copy current host ESP partition content"
-        command:
-          cmd: rsync -a /boot/efi/ /mnt/target/boot/efi/
+        - name: "Cleanup: umount loop filesystem"
+          command: umount /mnt/image
 
-      - name: "Cleanup: umount loop filesystem"
-        command: umount /mnt/image
+        - name: "Cleanup: unset loop filesystem"
+          command:
+            cmd: "losetup -d {{image_loop_dev.stdout}}"
 
-      - name: "Cleanup: unset loop filesystem"
-        command:
-          cmd: "losetup -d {{image_loop_dev.stdout}}"
+    - name: "Add a bootloader"
+      block:
+        - name: "Create some folders"
+          file:
+            path: "{{item}}"
+            state: directory
+          loop:
+            - /mnt/target/boot/efi/EFI/loader/entries
+            - /mnt/target/boot/efi/EFI/boot
+            - /mnt/target/boot/efi/EFI/systemd
+            - /mnt/target/boot/efi/EFI/fedora
+
+        - name: "Get kernel version"
+          find:
+            paths: ["/mnt/target/lib/modules"]
+            patterns: ["*.x86_64"]
+            file_type: directory
+          register: kernel_ver
+
+        - name: "Install boot files: systemd boot"
+          copy:
+            remote_src: true
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+          loop:
+            - {
+                src: "/mnt/target/lib/systemd/boot/efi/systemd-bootx64.efi",
+                dest: "/mnt/target/boot/efi/EFI/boot/bootx64.efi",
+              }
+            - {
+                src: "/mnt/target/lib/systemd/boot/efi/systemd-bootx64.efi",
+                dest: "/mnt/target/boot/efi/EFI/systemd/systemd-bootx64.efi",
+              }
+            - {
+                src: "/mnt/target/boot/vmlinuz-{{kernel_ver.files[0].path|basename}}",
+                dest: "/mnt/target/boot/efi/EFI/fedora/vmlinuz",
+              }
+            - {
+                src: "/mnt/target/boot/initramfs-{{kernel_ver.files[0].path|basename}}.img",
+                dest: "/mnt/target/boot/efi/EFI/fedora/initramfs.img",
+              }
 
     - name: "Customize setup"
       copy:
         src: configs/
         dest: /mnt/target/
-
     # - name: "Cleanup: umount target ESP"
     #   mount:
     #     path: /mnt/target/boot/efi
     #     state: unmounted
-
     # - name: "Cleanup: umount target"
     #   mount:
     #     path: /mnt/target
